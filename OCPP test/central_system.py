@@ -38,28 +38,38 @@ class ChargePoint(cp):  # A new class 'ChargePoint' is defined which inherits fr
 
     @on("MeterValues")
     async def on_meter_values(self, evse_id, meter_value, **kwargs):
+        # Log the received meter values for diagnostics.
         logging.info("Metervalues received: %s", meter_value)
-
+        # Respond to the received meter values without any additional data.
         return call_result.MeterValuesPayload()
-    
-    @on("TransactionEvent")
-    async def on_transaction_event(self, event_type,transaction_info, **kwargs):
-        logging.info("TransactionEvent received: %s", event_type)
 
+    @on("TransactionEvent")
+    async def on_transaction_event(self, event_type, transaction_info, **kwargs):
+        # Log the event type received during a transaction.
+        logging.info("TransactionEvent received: %s", event_type)
+        # Respond to the transaction event without providing extra data.
         return call_result.TransactionEventPayload()
-    
+
     @after("TransactionEvent")
     async def after_transaction_event(self, event_type, transaction_info, **kwargs):
+        # Log a message (note: logging text may need refining).
         logging.info("poop")
-
+        
+        # Check the type of transaction event and act accordingly.
         if event_type == "Started":
+            # Log a message and initiate a transaction using the received transaction ID.
             logging.info("testpoop")
             await self.start_transaction(transaction_info['transaction_id'])
+        elif event_type == "Ended":
+            # Log a message and stop the transaction using the received transaction ID.
+            logging.info("Ended Charging")
+            await self.stop_transaction(transaction_info['transaction_id'])
         else:
+            # Log an error message if the transaction event type is not recognized or cannot be processed.
             logging.info("Error processing transaction request")
 
-
     async def start_transaction(self, id_token):
+        # Create a request payload to start a transaction with provided ID token and additional custom data.
         request = call.RequestStartTransactionPayload(
             id_token={
                 "id_token": id_token,
@@ -71,18 +81,32 @@ class ChargePoint(cp):  # A new class 'ChargePoint' is defined which inherits fr
                 'vendorId': 'test vendor',
                 "current time": datetime.utcnow().isoformat()
             }
-            # id_tag='1',
-            # meter_start=0,          # Initial Energy meter value / integer
-            # timestamp=datetime.utcnow().isoformat()
         )
+        # Send the request and wait for a response.
         response = await self.call(request)
-        # await self.send_status_notification(ChargePointErrorCode.ev_communication_error, ChargePointStatus.preparing)
+        
+        # Check the status of the response and log the results or potential errors.
         if response.status == "Accepted":
             logging.info("Started Charging")
-            # await self.send_status_notification(ChargePointErrorCode.no_error, ChargePointStatus.charging)
             return response.transaction_id
         else:
             logging.error("Problems with starting the charge process!")
+
+    async def stop_transaction(self,transaction_id):
+        # Create a request payload to stop a transaction, identifying it using the provided transaction ID.
+        request = call.RequestStopTransactionPayload(
+            transaction_id=transaction_id
+        )
+        # Send the request and wait for a response.
+        response = await self.call(request)
+        
+        # Check the status of the response, logging either the stoppage of charging or an error.
+        if response.status == "Accepted":
+            logging.info("Stopped charging")
+            return response.transaction_id
+        else:
+            logging.error("Problems with starting the charge process!")
+
 
 
 # This is an aysnchronous function designed to handle new charge point connections. It will be invoked whenever a new websocket client connects to the server.
