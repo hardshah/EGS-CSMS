@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Charge Point Metrics</title>
+    <link rel="stylesheet" type="text/css" href="/static/styles.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+
+</head>
+
+<body data-selected-location="{{ selected_location | tojson | safe }}">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">
+            <img src="/static/images/electrogenesys-logo.png" alt="Electrogenesys Logo" width="300" height="90">
+        </a>
+        <span class="navbar-text mx-auto title-centered">Charge Point Dashboard</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ request.url_for('get_transactions') }}">Transactions</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ request.url_for('get_locations') }}">Locations</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <!-- ... other HTML content ... -->
+
+    <!-- Add Chargepoint Form -->
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseForm" aria-expanded="false" aria-controls="collapseForm">
+                        Add Chargepoint
+                    </button>
+                </h5>
+            </div>
+    
+            <div id="collapseForm" class="collapse" aria-labelledby="headingOne">
+                <div class="card-body">
+                    <!-- Add Chargepoint Form -->
+                    <form action="/add-chargepoint" method="post">
+                        <div class="form-group">
+                            <label for="cpIdInput">CP ID</label>
+                            <input type="text" class="form-control" id="cpIdInput" name="cp_id" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cpLocationInput">Location</label>
+                            <input type="text" class="form-control" id="cpLocationInput" name="location" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cpModel">Model</label>
+                            <input type="text" class="form-control" id="cpModel" name="model" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cpVendor">Vendor Name</label>
+                            <input type="text" class="form-control" id="cpVendor" name="vendor_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cpSerialNumber">Serial Number</label>
+                            <input type="text" class="form-control" id="cpSerialNumber" name="serial_number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cpFirmwareVersion">Firmware Version</label>
+                            <input type="text" class="form-control" id="cpFirmwareVersion" name="firmware_version" required>
+                        </div>
+                        <!-- Add other form fields here -->
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <form class="form-inline mb-4" action="/" method="get">
+        <label class="sr-only" for="cpLocation">CP Location</label>
+        <input type="text" class="form-control mb-2 mr-sm-2" id="cpLocation" placeholder="Enter Location" name="location">
+    
+        
+        <button type="submit" class="btn btn-primary mb-2">Filter</button>
+    </form>
+    
+    <!-- ... rest of HTML content ... -->
+
+    {% if selected_location %}
+        <div class="alert alert-info" role="alert">
+            Showing charge points for: {{ selected_location }}
+            <a href="{{ request.url_for('get_metrics') }}" class="alert-link">Show all</a>
+        </div>
+    {% endif %}
+    <div class="content container mt-4">
+        <h2 class="mb-3">Connected Charge Points</h2>
+        <div class="row">
+            {% for cp in cps %}
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card {{'greyed-out' if cp.status not in ['charging', 'available']}}">
+                        <div class="card-body">
+                            <h5 class="card-title">Charge Point ID: {{ cp._id }}</h5>
+
+                            <!-- Check if chargepoint is in active_cps -->
+                            {% if cp.status == "charging" %}
+                                <!-- If charging, display yellow dot -->
+                                <img class='dot' src="static\images\flash.png" alt="">
+                                <span class="status-text">Charging</span>
+
+                            {% elif cp.status == "available" %}
+                                <!-- If available, display green dot -->
+                                <img class='dot' src="static\images\checked.png" alt="">
+                                <span class="status-text">Available</span>
+
+                            {% else %}
+                                <!-- If offline, appears greyed out -->
+                                <span class="status-text">Offline</span>
+
+
+                            {% endif %}
+                            <img class = 'charger-icon'src="static\images\charger.png" alt="">
+                            <a href="{{ request.url_for('get_charge_point_metrics', cp_id=cp._id) }}" class="btn btn-primary">View Metrics</a>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>   
+    <script src="static/JS/cp-status.js"></script>
+    
+    
+</body>
+
+</html>

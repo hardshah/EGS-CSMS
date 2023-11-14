@@ -1,0 +1,5 @@
+# ocpp==0.15.0
+# websockets==10.2
+# apscheduler==3.10.1
+# fastapi==0.103.1
+# uvicorn==0.23.2

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions</title>
+    <link rel="stylesheet" type="text/css" href="/static/styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+    <style>
+        /* Style for the scrollable table container */
+        .scrollable-table-container {
+            max-height: 400px; /* Adjust as needed */
+            overflow-y: scroll;
+        }
+        /* You may want to add this to prevent horizontal scrolling if your table is wide */
+        .table-responsive {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">
+            <img src="/static/images/electrogenesys-logo.png" alt="Electrogenesys Logo" width="300" height="90">
+        </a>
+        <span class="navbar-text mx-auto title-centered">Transaction History</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Dashboard</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Transactions</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ request.url_for('get_locations') }}">Locations</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <form class="form-inline mb-4" action="/transactions" method="get">
+            <label class="sr-only" for="cpIdInput">CP ID</label>
+            <input type="text" class="form-control mb-2 mr-sm-2" id="cpIdInput" placeholder="Enter CP ID" name="cp_id">
+            
+            <label class="sr-only" for="dateInput">Date</label>
+            <input type="date" class="form-control mb-2 mr-sm-2" id="dateInput" name="date">
+            
+            <button type="submit" class="btn btn-primary mb-2">Filter</button>
+        </form>
+
+        <h2>Transaction Logs</h2>
+        <div class="scrollable-table-container">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>CP ID</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Energy Used (kWh)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                            <tr>
+                                <td>{{ transaction['_id'] }}</td>
+                                <td>{{ transaction['CP_ID'] }}</td>
+                                <td>{{ transaction['start_time'] }}</td>
+                                <td>{{ transaction['end_time'] }}</td>
+                                <td>{{ transaction['Energy_used'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
