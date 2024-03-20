@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transactions for Charger {{ charger_id }}</title>
+</head>
+<body>
+
+    <h2>Ongoing Transactions</h2>
+    <ul>
+        {% for transaction in ongoing_transactions %}
+            <li>Transaction ID: {{ transaction.transaction_id }}, Start Time: {{ transaction.startTime }}, User: {{transaction.idTag}}</li>
+        {% empty %}
+            <li>No ongoing transactions.</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Finished Transactions</h2>
+    <ul>
+        {% for transaction in finished_transactions %}
+            <li>Transaction ID: {{ transaction.transaction_id }}, Start Time: {{ transaction.startTime }}, End Time: {{ transaction.stopTime }}, User: {{transaction.idTag}}, Wh Usage: {{transaction.usage}}, Duration:{{transaction.duration}}</li>
+        {% empty %}
+            <li>No finished transactions.</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

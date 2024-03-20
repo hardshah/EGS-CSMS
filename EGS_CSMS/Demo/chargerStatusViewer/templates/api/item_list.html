@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Charger List</h2>
+  <a href="{% url 'charger-create' %}">Add New Charger</a>
+  <ul>
+    {% for charger in object_list %}
+      <li>{{ charger.charge_point_id }} ({{ charger.network.location }}) ( <a href="{% url 'view_charger_transactions' charger_id=charger.charge_point_id %}">View Transactions</a> | <a href="{% url 'charger-update' charger.id %}">Edit</a> | <a href="{% url 'charger-delete' charger.id %}">Delete</a> )</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Network List</h2>
+  <a href="{% url 'network-create' %}">Add New Network</a>
+  <ul>
+    {% for network in object_list %}
+      <li>{{ network.location }} ( <a href="{% url 'network-update' network.id %}">Edit</a> | <a href="{% url 'network-delete' network.id %}">Delete</a> )</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
