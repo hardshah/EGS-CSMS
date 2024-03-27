@@ -32,3 +32,8 @@ class Transaction(models.Model):
     id = models.AutoField(primary_key=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='inactive')
     charger = models.ForeignKey(Item, on_delete=models.CASCADE, related_name ='transactions')
+
+class User(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    id_number = models.CharField(max_length=100)

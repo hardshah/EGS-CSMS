@@ -9,7 +9,7 @@
     <h2>Ongoing Transactions</h2>
     <ul>
         {% for transaction in ongoing_transactions %}
-            <li>Transaction ID: {{ transaction.transaction_id }}, Start Time: {{ transaction.startTime }}, User: {{transaction.idTag}}</li>
+            <li>Transaction ID: {{ transaction.transaction_id }}, Start Time: {{ transaction.startTime }}, User: {{transaction.user}}</li>
         {% empty %}
             <li>No ongoing transactions.</li>
         {% endfor %}
@@ -18,7 +18,7 @@
     <h2>Finished Transactions</h2>
     <ul>
         {% for transaction in finished_transactions %}
-            <li>Transaction ID: {{ transaction.transaction_id }}, Start Time: {{ transaction.startTime }}, End Time: {{ transaction.stopTime }}, User: {{transaction.idTag}}, Wh Usage: {{transaction.usage}}, Duration:{{transaction.duration}}</li>
+            <li>Transaction ID: {{ transaction.transaction_id }}, Start Time: {{ transaction.startTime }}, End Time: {{ transaction.stopTime }}, User: {{transaction.user}}, Wh Usage: {{transaction.usage}}, Duration:{{transaction.duration}}</li>
         {% empty %}
             <li>No finished transactions.</li>
         {% endfor %}

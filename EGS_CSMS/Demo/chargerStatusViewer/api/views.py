@@ -2,7 +2,7 @@ from urllib import parse
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from .models import Network, Item
+from .models import Network, Item, User
 from .mongo_utils import TransactionsDAL
 
 
@@ -48,8 +48,36 @@ class ChargerDeleteView(DeleteView):
     model = Item
     success_url = reverse_lazy('charger-list')
 
+# User Views
+class UserListView(ListView):
+    model = User
+    context_object_name = 'users'
+
+class UserCreateView(CreateView):
+    model = User
+    fields = ['name', 'id_number']
+    success_url = reverse_lazy('user-list')
+
+class UserUpdateView(UpdateView):
+    model = User
+    fields = ['name', 'id_number']
+    success_url = reverse_lazy('user-list')
+class UserDeleteView(DeleteView):
+    model = User
+    success_url = reverse_lazy('user-list')
+
+#Transactions
+    
 def View_Charger_Transactions(request, charger_id):
     transactionsDB = TransactionsDAL(uri, dbName, collection)
+
+    # Create mapping of id_numbers to users
+    users = User.objects.all()
+    idTagtoUserMapping = {}
+    for user in users:
+        idTagtoUserMapping[user.id_number] = user.name
+    print(idTagtoUserMapping)
+
     # Fetching transactions using utility functions
     ongoing_transactions = transactionsDB.get_ongoing_transactions(charger_id)
     finished_transactions = transactionsDB.get_finished_transactions(charger_id)
@@ -57,11 +85,19 @@ def View_Charger_Transactions(request, charger_id):
     for transaction in ongoing_transactions:
     # Convert ObjectId to string and assign to a new key that doesn't start with an underscore
         transaction['transaction_id'] = str(transaction['_id'])
+        if transaction['idTag'] in idTagtoUserMapping:
+            transaction['user'] = idTagtoUserMapping[transaction['idTag']]
+        else:
+            transaction['user'] = "Unknown user"
     
     for transaction in finished_transactions:
         transaction['transaction_id'] = str(transaction['_id'])
         transaction['usage'] = transaction['meterStop']-transaction['meterStart']
         transaction['duration'] = transaction['stopTime'] - transaction['startTime']
+        if transaction['idTag'] in idTagtoUserMapping:
+            transaction['user'] = idTagtoUserMapping[transaction['idTag']]
+        else:
+            transaction['user'] = "Unknown user"
 
     context = {
         'ongoing_transactions': ongoing_transactions,
